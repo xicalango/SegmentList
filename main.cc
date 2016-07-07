@@ -4,7 +4,7 @@
 
 #include "segment.h"
 
-char* string = "0123456789ABCDEF";
+const std::size_t ELEMENTS = xx::SEGMENT_SIZE;
 
 void store_string(xx::RawSegmentList& list, char* str) {
   std::size_t len = std::strlen(str) + 1;
@@ -18,7 +18,7 @@ int main(void) {
 
   char* buffer = new char[100];
 
-  for(std::size_t i = 0; i < xx::SEGMENT_SIZE; i++) {
+  for(std::size_t i = 0; i < ELEMENTS; i++) {
     sprintf(buffer, "%u", i);
     store_string( list, buffer );
   }

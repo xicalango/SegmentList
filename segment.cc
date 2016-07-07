@@ -77,9 +77,17 @@ namespace xx {
   }
 
   std::pair<char*, std::size_t> RawSegmentList::restore_multi_segments(SegmentId& prev_sid, SegmentId& cur_sid) {
-    std::size_t length = 0;
-    std::vector<char*> begins;
-    std::vector<std::size_t> lens;
+    std::size_t size_on_first_segment = SEGMENT_SIZE - prev_sid.offset;
+    std::size_t size_on_last_segment = cur_sid.offset;
+    std::size_t full_pages = 0;
+    if (cur_sid.segment - prev_sid.segment > 2) {
+      full_pages = ( (cur_sid.segment - prev_sid.segment) - 2 ) * SEGMENT_SIZE;
+    }
+
+    std::size_t length = size_on_first_segment + full_pages + size_on_last_segment;
+
+    char* data = new char[length];
+    char* cur_data = data;
 
     for(std::size_t i = prev_sid.segment; i <= cur_sid.segment; i++) {
       std::size_t cur_offset = i == prev_sid.segment ? prev_sid.offset : 0;
@@ -87,18 +95,10 @@ namespace xx {
       std::size_t bytes_on_segment = end_index - cur_offset;
 
       segment* seg = segments[i];
-      begins.push_back( seg->data() + cur_offset );
-      lens.push_back( bytes_on_segment );
 
-      length += bytes_on_segment;
-    }
+      std::memcpy( cur_data, seg->data() + cur_offset, bytes_on_segment );
 
-    char* data = new char[length];
-    char* cur_data = data;
-
-    for(std::size_t i = 0; i < begins.size(); i++) {
-      std::memcpy( cur_data, begins[i], lens[i] );
-      cur_data += lens[i];
+      cur_data += bytes_on_segment;
     }
 
     return std::make_pair(data, length);
