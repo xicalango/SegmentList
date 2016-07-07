@@ -8,6 +8,16 @@
 
 namespace xx {
 
+  RawSegmentList::RawSegmentList() {
+      std::unique_ptr<Segment> first_segment = std::make_unique<Segment>();
+      segments.push_back(std::move(first_segment));
+
+      cur.segment = 0;
+      cur.offset = 0;
+
+      segment_ids.push_back(cur);
+  }
+
   SegmentId RawSegmentList::store(char* data, std::size_t length) {
     if (fits_on_current_segment(length)) {
       store_on_same_segment(data, length);
@@ -21,8 +31,9 @@ namespace xx {
   }
 
   void RawSegmentList::store_on_same_segment(char* data, std::size_t length) {
-    //  printf("writing %04X bytes from @%p to @%p\n", length, data, current_segment->data() + cur.offset);
-    std::memcpy( current_segment->data() + cur.offset, data, length );
+    Segment& current_segment = get_current_segment();
+    //  printf("writing %04X bytes from @%p to @%p\n", length, data, current_segment.data() + cur.offset);
+    std::memcpy( current_segment.data() + cur.offset, data, length );
     cur.offset += length;
   }
 
@@ -37,9 +48,11 @@ namespace xx {
 
       std::size_t bytes_to_copy = std::min(remaining_size, remaining_bytes);
 
-      // printf("writing %04X bytes from @%p to @%p [remaining_on_segment = %u/%u, remaining_bytes = %u]\n", bytes_to_copy, data + current_read, current_segment->data() + cur.offset, remaining_size, SEGMENT_SIZE, remaining_bytes);
+      // printf("writing %04X bytes from @%p to @%p [remaining_on_segment = %u/%u, remaining_bytes = %u]\n", bytes_to_copy, data + current_read, current_segment.data() + cur.offset, remaining_size, SEGMENT_SIZE, remaining_bytes);
 
-      std::memcpy( current_segment->data() + cur.offset, data + current_read, bytes_to_copy );
+      Segment& current_segment = get_current_segment();
+
+      std::memcpy( current_segment.data() + cur.offset, data + current_read, bytes_to_copy );
 
       cur.offset += bytes_to_copy;
       current_read += bytes_to_copy;
@@ -67,11 +80,11 @@ namespace xx {
 
   std::pair<char*, std::size_t> RawSegmentList::restore_same_segment(SegmentId& prev_sid, SegmentId& cur_sid) {
     std::size_t len = cur_sid.offset - prev_sid.offset;
-    Segment* s = segments[prev_sid.segment];
+    Segment& s = *segments[prev_sid.segment];
     
     char* data = new char[len];
 
-    std::memcpy( data, s->data() + prev_sid.offset, len );
+    std::memcpy( data, s.data() + prev_sid.offset, len );
 
     return std::make_pair(data, len);
   }
@@ -94,9 +107,9 @@ namespace xx {
       std::size_t end_index = i == cur_sid.segment ? cur_sid.offset : SEGMENT_SIZE;
       std::size_t bytes_on_segment = end_index - cur_offset;
 
-      Segment* seg = segments[i];
+      Segment& seg = *segments[i];
 
-      std::memcpy( cur_data, seg->data() + cur_offset, bytes_on_segment );
+      std::memcpy( cur_data, seg.data() + cur_offset, bytes_on_segment );
 
       cur_data += bytes_on_segment;
     }
@@ -117,13 +130,15 @@ namespace xx {
   }
 
   void RawSegmentList::add_segment() {
-    Segment* new_segment = new Segment({});
+    std::unique_ptr<Segment> new_segment = std::make_unique<Segment>();
     
-    segments.push_back( new_segment );
+    segments.push_back( std::move(new_segment) );
     cur.segment++;
     cur.offset = 0;
+  }
 
-    current_segment = new_segment;
+  RawSegmentList::Segment& RawSegmentList::get_current_segment() {
+    return *segments[ cur.segment ];
   }
 
   void RawSegmentList::debug() {
@@ -134,7 +149,7 @@ namespace xx {
     for(std::size_t i = 0; i < segments.size(); i++) {
       char* ptr = segments[i]->data();
       for (std::size_t j = 0; j < SEGMENT_SIZE; j++) {
-        printf("%u -- %p: %02X\n", i, ptr + j, ptr[j]);
+        printf("%lu -- %p: %02X\n", i, ptr + j, ptr[j]);
       }
     }
   }

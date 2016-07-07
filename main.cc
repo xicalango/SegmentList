@@ -19,15 +19,15 @@ int main(void) {
   char* buffer = new char[100];
 
   for(std::size_t i = 0; i < ELEMENTS; i++) {
-    sprintf(buffer, "%u", i);
+    sprintf(buffer, "%lu", i);
     store_string( list, buffer );
   }
 
-  printf("list size: %u\n", list.size());
+  printf("list size: %lu\n", list.size());
 
   for(std::size_t i = 0; i < list.size(); i++) {
     char* str = std::get<0>( list.restore(i) );
-    sprintf(buffer, "%u", i);
+    sprintf(buffer, "%lu", i);
     assert( std::strncmp(str, buffer, 100) == 0 );
   }
 

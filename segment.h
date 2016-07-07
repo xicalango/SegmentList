@@ -1,10 +1,12 @@
 #ifndef __SEGMENT_H
 #define __SEGMENT_H
 
+#include <cstdint>
+
 #include <vector>
 #include <array>
-#include <cstdint>
 #include <utility>
+#include <memory>
 
 namespace xx {
 
@@ -22,31 +24,13 @@ class RawSegmentList {
 
   private:
 
-  std::vector<Segment*> segments;
+  std::vector<std::unique_ptr<Segment>> segments;
   std::vector<SegmentId> segment_ids;
-  Segment* current_segment;
   SegmentId cur;
 
   public: 
 
-  RawSegmentList() {
-
-      Segment* first_segment = new Segment({});
-      segments.push_back(first_segment);
-
-      cur.segment = 0;
-      cur.offset = 0;
-
-      segment_ids.push_back(cur);
-
-      current_segment = first_segment;
-  }
-
-  ~RawSegmentList() {
-    for (auto s : segments) {
-      delete s;
-    }
-  }
+  RawSegmentList();
 
   SegmentId store(char* data, std::size_t length);
 
@@ -66,6 +50,8 @@ class RawSegmentList {
   bool fits_on_current_segment(std::size_t length);
 
   void add_segment();
+
+  Segment& get_current_segment();
 
   public:
 
