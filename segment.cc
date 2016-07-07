@@ -67,7 +67,7 @@ namespace xx {
 
   std::pair<char*, std::size_t> RawSegmentList::restore_same_segment(SegmentId& prev_sid, SegmentId& cur_sid) {
     std::size_t len = cur_sid.offset - prev_sid.offset;
-    segment* s = segments[prev_sid.segment];
+    Segment* s = segments[prev_sid.segment];
     
     char* data = new char[len];
 
@@ -94,7 +94,7 @@ namespace xx {
       std::size_t end_index = i == cur_sid.segment ? cur_sid.offset : SEGMENT_SIZE;
       std::size_t bytes_on_segment = end_index - cur_offset;
 
-      segment* seg = segments[i];
+      Segment* seg = segments[i];
 
       std::memcpy( cur_data, seg->data() + cur_offset, bytes_on_segment );
 
@@ -117,7 +117,7 @@ namespace xx {
   }
 
   void RawSegmentList::add_segment() {
-    segment* new_segment = new segment({});
+    Segment* new_segment = new Segment({});
     
     segments.push_back( new_segment );
     cur.segment++;

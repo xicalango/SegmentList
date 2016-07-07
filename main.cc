@@ -4,7 +4,7 @@
 
 #include "segment.h"
 
-const std::size_t ELEMENTS = xx::SEGMENT_SIZE;
+const std::size_t ELEMENTS = xx::RawSegmentList::SEGMENT_SIZE;
 
 void store_string(xx::RawSegmentList& list, char* str) {
   std::size_t len = std::strlen(str) + 1;

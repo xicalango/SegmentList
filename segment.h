@@ -8,10 +8,6 @@
 
 namespace xx {
 
-const std::size_t SEGMENT_SIZE = 4 * 1024 * 1024;
-
-typedef std::array<char, SEGMENT_SIZE> segment;
-
 struct SegmentId {
   uint32_t segment;
   uint32_t offset;
@@ -19,16 +15,23 @@ struct SegmentId {
 
 class RawSegmentList {
 
-  std::vector<segment*> segments;
+  public:
+
+  static const std::size_t SEGMENT_SIZE = 4 * 1024 * 1024;
+  typedef std::array<char, SEGMENT_SIZE> Segment;
+
+  private:
+
+  std::vector<Segment*> segments;
   std::vector<SegmentId> segment_ids;
-  segment* current_segment;
+  Segment* current_segment;
   SegmentId cur;
 
   public: 
 
   RawSegmentList() {
 
-      segment* first_segment = new segment({});
+      Segment* first_segment = new Segment({});
       segments.push_back(first_segment);
 
       cur.segment = 0;
