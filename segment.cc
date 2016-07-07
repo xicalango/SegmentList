@@ -80,11 +80,11 @@ namespace xx {
     std::size_t size_on_first_segment = SEGMENT_SIZE - prev_sid.offset;
     std::size_t size_on_last_segment = cur_sid.offset;
     std::size_t full_pages = 0;
-    if (cur_sid.segment - prev_sid.segment > 2) {
-      full_pages = ( (cur_sid.segment - prev_sid.segment) - 2 ) * SEGMENT_SIZE;
+    if (cur_sid.segment - prev_sid.segment > 1) {
+      full_pages = ( (cur_sid.segment - prev_sid.segment) - 1 );
     }
 
-    std::size_t length = size_on_first_segment + full_pages + size_on_last_segment;
+    std::size_t length = size_on_first_segment + (full_pages * SEGMENT_SIZE) + size_on_last_segment;
 
     char* data = new char[length];
     char* cur_data = data;
