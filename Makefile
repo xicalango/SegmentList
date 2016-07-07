@@ -1,9 +1,11 @@
-CC=g++
+CC = g++
+
+CFLAGS = -O3 -std=c++14
 
 all: segment
 
 segment: segment.cc main.cc segment.h
-	$(CC) -O3 -o segment segment.cc main.cc
+	$(CC) $(CFLAGS) -o segment segment.cc main.cc
 
 clean:
 	rm segment
