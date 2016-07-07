@@ -60,7 +60,7 @@ class RawSegmentList {
   void store_on_multi_segments(char* data, std::size_t length);
 
   std::size_t get_remaining_size();
-  bool does_segment_fit_on_current(std::size_t length);
+  bool fits_on_current_segment(std::size_t length);
 
   void add_segment();
 

@@ -9,7 +9,7 @@
 namespace xx {
 
   SegmentId RawSegmentList::store(char* data, std::size_t length) {
-    if (does_segment_fit_on_current(length)) {
+    if (fits_on_current_segment(length)) {
       store_on_same_segment(data, length);
     } else {
       store_on_multi_segments(data, length);
@@ -108,7 +108,7 @@ namespace xx {
     return SEGMENT_SIZE - cur.offset;
   }
 
-  bool RawSegmentList::does_segment_fit_on_current(std::size_t length) {
+  bool RawSegmentList::fits_on_current_segment(std::size_t length) {
     return get_remaining_size() >= length;
   }
 
